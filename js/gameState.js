@@ -177,14 +177,7 @@ class GameState {
             App.gameLoop.startGame(this.sessionData);
         }
         
-        // Update UI elements
-        if (typeof GameScreen !== 'undefined') {
-            // Force resize of telemetry graph
-            GameScreen.resizeTelemetryGraph();
-            
-            // Update UI with session data
-            GameScreen.updateUI(this.sessionData);
-        }
+        // No updateUI function in GameScreen, so we don't call it
     }
     
     /**
@@ -196,11 +189,6 @@ class GameState {
         // Stop the game loop
         if (typeof App.gameLoop !== 'undefined' && App.gameLoop) {
             App.gameLoop.stopGame();
-        }
-        
-        // Clean up resources
-        if (typeof GameScreen !== 'undefined') {
-            GameScreen.cleanup();
         }
     }
     

@@ -79,17 +79,11 @@ class GameLoop {
         // Start telemetry recording if available
         if (App.telemetry) {
             App.telemetry.startRecording();
-            console.log("Telemetry recording started");
-        } else {
-            console.warn("Telemetry not available for recording");
         }
         
         // Start the game loop
         this.isRunning = true;
         this.animationFrameId = requestAnimationFrame(this.update);
-        
-        // Force an immediate update of the UI
-        this.updateGameUI();
         
         console.log("Game started");
     }
@@ -154,6 +148,7 @@ class GameLoop {
         this.isInTransition = true;
         this.transitionStartTime = performance.now();
         this.transitionComplete = false;
+        this.transitionConditionMetTime = null;
         this.currentTarget = null;
         
         // Update UI to show transition requirements
@@ -204,6 +199,10 @@ class GameLoop {
         // End transition phase
         this.isInTransition = false;
         
+        // Reset transition tracking
+        this.transitionConditionMetTime = null;
+        this.transitionComplete = false;
+        
         // Generate a new target
         this.currentTarget = this.generateTarget();
         this.targetStartTime = performance.now();
@@ -251,6 +250,10 @@ class GameLoop {
             this.endGame();
             return;
         }
+        
+        // Reset transition tracking before starting new transition
+        this.transitionConditionMetTime = null;
+        this.transitionComplete = false;
         
         // Start new transition
         this.startTransition();
@@ -346,6 +349,7 @@ class GameLoop {
             if (!this.transitionConditionMetTime) {
                 // First time condition is met
                 this.transitionConditionMetTime = currentTime;
+                console.log("Transition condition met, starting timer");
             } else {
                 // Check if condition has been met for long enough
                 const timeInCondition = currentTime - this.transitionConditionMetTime;
@@ -356,12 +360,16 @@ class GameLoop {
                 this.updateGameUI();
                 
                 if (timeInCondition >= transitionDelay) {
+                    console.log("Transition delay reached, completing transition");
                     this.completeTransition();
                 }
             }
         } else {
             // Reset timer if condition is no longer met
-            this.transitionConditionMetTime = null;
+            if (this.transitionConditionMetTime !== null) {
+                console.log("Transition condition no longer met, resetting timer");
+                this.transitionConditionMetTime = null;
+            }
         }
     }
     
@@ -382,10 +390,6 @@ class GameLoop {
         // Update telemetry
         if (App.telemetry) {
             App.telemetry.markInRange(isInRange);
-            
-            // Also update target completion status for visualization
-            const targetCompleted = this.validDurationMet;
-            App.telemetry.markTargetCompleted(targetCompleted);
         }
         
         // Handle entering/leaving the target range
@@ -394,21 +398,14 @@ class GameLoop {
                 // Just entered target range
                 this.isInTargetRange = true;
                 this.inRangeStartTime = performance.now();
-                console.log("Entered target range at", this.inRangeStartTime);
             } else {
                 // Still in target range, check if valid duration is met
                 const timeInRange = performance.now() - this.inRangeStartTime;
                 const validDurationMs = Config.valid_duration * 1000;
                 
-                // Debug the time in range
-                if (App.debug && Math.floor(timeInRange / 100) % 5 === 0) {
-                    console.log(`Time in range: ${timeInRange.toFixed(0)}ms / ${validDurationMs}ms (${(timeInRange/validDurationMs*100).toFixed(1)}%)`);
-                }
-                
                 if (timeInRange >= validDurationMs) {
                     // Valid duration met, target complete
                     this.validDurationMet = true;
-                    console.log("Target complete! Time in range:", timeInRange);
                     this.completeTarget();
                 }
             }

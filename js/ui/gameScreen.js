@@ -165,33 +165,77 @@ const GameScreen = {
         const width = settings.width;
         const height = settings.height;
         
+        // Draw background
+        ctx.fillStyle = settings.backgroundColor;
+        ctx.fillRect(0, 0, width, height);
+        
+        // Leave space for axis labels
+        const leftMargin = 10;     // Small space at the left
+        const rightMargin = 40;    // Space for y-axis labels on the right
+        const bottomMargin = 25;   // Space for x-axis labels
+        const topMargin = 10;      // Space at the top
+        
+        const graphWidth = width - leftMargin - rightMargin;
+        const graphHeight = height - bottomMargin - topMargin;
+        
+        // Draw axis lines
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1.5;
+        
+        // Y-axis (right side)
+        ctx.beginPath();
+        ctx.moveTo(width - rightMargin, topMargin);
+        ctx.lineTo(width - rightMargin, height - bottomMargin);
+        ctx.stroke();
+        
+        // X-axis
+        ctx.beginPath();
+        ctx.moveTo(leftMargin, height - bottomMargin);
+        ctx.lineTo(width - rightMargin, height - bottomMargin);
+        ctx.stroke();
+        
+        // Draw grid and y-axis labels (0%, 25%, 50%, 75%, 100%)
         ctx.strokeStyle = settings.gridColor;
         ctx.lineWidth = 1;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.font = `${settings.fontSize}px ${settings.fontFamily}`;
         
-        // Draw horizontal grid lines (0%, 50%, 100%)
-        for (let i = 0; i <= 100; i += 50) {
-            const y = height - (i / 100) * height;
+        for (let i = 0; i <= 100; i += 25) {
+            const y = height - bottomMargin - (i / 100) * graphHeight;
             
+            // Draw horizontal grid line
             ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(width, y);
+            ctx.moveTo(leftMargin, y);
+            ctx.lineTo(width - rightMargin, y);
             ctx.stroke();
+            
+            // Draw y-axis label on right side
+            ctx.fillStyle = '#000';
+            ctx.fillText(`${i}%`, width - rightMargin + 5, y);
         }
         
-        // Draw vertical grid lines (every second)
+        // Draw grid and x-axis labels (0, -1, -2, -3, -4 seconds)
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        
         const timeWindow = settings.timeWindow;
-        const secondWidth = width / (timeWindow / 1000);
+        const secondWidth = graphWidth / (timeWindow / 1000);
         
         for (let i = 0; i <= timeWindow / 1000; i++) {
-            if (i % 1 === 0) { // Only draw full seconds
-                const x = width - (i * secondWidth);
+            const x = width - rightMargin - (i * secondWidth);
+            
+            // Only draw at second intervals
+            if (x >= leftMargin) {
+                // Draw vertical grid line
+                ctx.beginPath();
+                ctx.moveTo(x, topMargin);
+                ctx.lineTo(x, height - bottomMargin);
+                ctx.stroke();
                 
-                if (x >= 0) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, height);
-                    ctx.stroke();
-                }
+                // Draw x-axis label
+                ctx.fillStyle = '#000';
+                ctx.fillText(`-${i}`, x, height - bottomMargin + 5);
             }
         }
     },
@@ -213,6 +257,15 @@ const GameScreen = {
             return;
         }
         
+        // Leave space for axis labels (same as in drawSimpleGrid)
+        const leftMargin = 10;     // Small space at the left
+        const rightMargin = 40;    // Space for y-axis labels on the right
+        const bottomMargin = 25;   // Space for x-axis labels
+        const topMargin = 10;      // Space at the top
+        
+        const graphWidth = width - leftMargin - rightMargin;
+        const graphHeight = height - bottomMargin - topMargin;
+        
         // Draw the main input line
         ctx.beginPath();
         ctx.strokeStyle = settings.lineColor;
@@ -223,12 +276,12 @@ const GameScreen = {
         let started = false;
         
         points.forEach(point => {
-            // Calculate position
-            const x = width - ((timeRange.end - point.x) / timeWindow) * width;
-            const y = height - (point.y / 100) * height;
+            // Calculate position - adjusted for margins
+            const x = width - rightMargin - ((timeRange.end - point.x) / timeWindow) * graphWidth;
+            const y = height - bottomMargin - (point.y / 100) * graphHeight;
             
-            // Skip if out of visible area
-            if (x < 0) return;
+            // Skip if out of visible graph area
+            if (x < leftMargin) return;
             
             // Start or continue the line
             if (!started) {
