@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sim Racing Pedal Training</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main container for the application -->
+    <div id="app-container">
+        <!-- Main Menu Screen -->
+        <div id="main-menu-screen" class="screen">
+            <h1>Sim Racing Pedal Training</h1>
+            
+            <div class="section">
+                <h2>Game Mode</h2>
+                <div class="mode-selection">
+                    <button id="mode-from-zero" class="mode-button selected">From 0%</button>
+                    <button id="mode-from-hundred" class="mode-button">From 100%</button>
+                    <button id="mode-continuous" class="mode-button">Continuous</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Game Settings</h2>
+                <div class="settings-container">
+                    <div class="setting">
+                        <label for="number-of-targets">Number of Targets: <span id="number-of-targets-value">10</span></label>
+                        <input type="range" id="number-of-targets" min="5" max="30" value="10">
+                    </div>
+                    
+                    <div class="setting">
+                        <label for="precision-range">Precision Range (±%): <span id="precision-range-value">5</span></label>
+                        <input type="range" id="precision-range" min="1" max="10" value="5">
+                    </div>
+                    
+                    <div class="setting">
+                        <label for="valid-duration">Valid Duration (sec): <span id="valid-duration-value">2.0</span></label>
+                        <input type="range" id="valid-duration" min="0.5" max="5" step="0.5" value="2.0">
+                    </div>
+                    
+                    <div class="setting">
+                        <label for="transition-delay">Transition Delay (sec): <span id="transition-delay-value">1.0</span></label>
+                        <input type="range" id="transition-delay" min="0.5" max="3" step="0.5" value="1.0">
+                    </div>
+                    
+                    <div class="setting checkbox">
+                        <label for="reflex-mode">
+                            <input type="checkbox" id="reflex-mode">
+                            Reflex Mode (random timing)
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Input Device</h2>
+                <div id="device-status">No device detected</div>
+                <div class="device-selection">
+                    <button id="use-gamepad" class="device-button">Use Gamepad</button>
+                    <button id="use-keyboard" class="device-button">Use Keyboard</button>
+                </div>
+            </div>
+            
+            <button id="start-game" class="primary-button">Start Game</button>
+        </div>
+        
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <div class="game-header">
+                <div id="timer">00:00.000</div>
+                <div id="target-counter">Target: 1/10</div>
+            </div>
+            
+            <div class="game-display">
+                <div class="percentage-container">
+                    <div id="target-percentage" class="percentage">Target: 75%</div>
+                    <div id="current-percentage" class="percentage">Current: 0%</div>
+                </div>
+                
+                <div class="progress-container">
+                    <div id="transition-progress" class="progress-bar">
+                        <div class="progress-fill"></div>
+                        <span>Transition</span>
+                    </div>
+                    
+                    <div id="valid-progress" class="progress-bar">
+                        <div class="progress-fill"></div>
+                        <span>Hold</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="telemetry-container">
+                <canvas id="telemetry-graph" width="600" height="150"></canvas>
+            </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen hidden">
+            <h1>Results</h1>
+            
+            <div class="results-summary">
+                <div class="result-item">
+                    <h2>Final Time</h2>
+                    <div id="final-time" class="result-value">00:00.000</div>
+                </div>
+                
+                <div class="result-item">
+                    <h2>Average Reaction Time</h2>
+                    <div id="avg-reaction-time" class="result-value">0.000s</div>
+                </div>
+                
+                <div class="result-item">
+                    <h2>Average Precision</h2>
+                    <div id="avg-precision" class="result-value">0.0%</div>
+                </div>
+            </div>
+            
+            <div class="historical-data">
+                <h2>Historical Performance</h2>
+                <div id="history-chart-container">
+                    <canvas id="history-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="restart-game" class="primary-button">Play Again</button>
+                <button id="return-to-menu" class="secondary-button">Return to Menu</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript files -->
+    <script src="js/config.js"></script>
+    <script src="js/gameState.js"></script>
+    <script src="js/input/inputHandler.js"></script>
+    <script src="js/input/telemetry.js"></script>
+    <script src="js/game/gameLoop.js"></script>
+    <script src="js/game/gameModes.js"></script>
+    <script src="js/game/scoring.js"></script>
+    <script src="js/ui/mainMenu.js"></script>
+    <script src="js/ui/gameScreen.js"></script>
+    <script src="js/ui/resultsScreen.js"></script>
+    <script src="js/ui/components.js"></script>
+    <script src="js/storage/localData.js"></script>
+    <script src="js/storage/statistics.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
